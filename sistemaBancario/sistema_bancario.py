@@ -1,10 +1,14 @@
 # Definindo o menu
 menu = """
-1- Depositar
-2- Sacar
-3- Extrato
-4- Saldo
-5- Sair
+1- Criar Usuário
+2- Criar Conta
+3- Depositar
+4- Sacar
+5- Extrato Cliente
+6- Saldo Cliente
+7- Listar Contas
+8- Sair
+}
 """
 
 # Definindo variáveis a serem usadas
@@ -13,6 +17,10 @@ limite = 500
 extrato = ""
 numero_saque = 0
 LIMITE_SAQUE = 3
+usuarios = {}
+contas = {}
+AGENCIA = 1
+numero_conta = 1000
 condicao = 100
 
 # Criando as lógicas dos menus
@@ -54,16 +62,53 @@ def saldo_cliente():
     global saldo
     return f'Saldo: R${saldo:.2f}'
 
+def criar_usuario():
+    cpf = input("Informe o CPF só com os números: ")
+    usuario = filtrar_usuario(cpf, usuarios)
+    if usuario:
+        return 'Já existe um usuário com esse CPF.'
+    
+    nome = input("Informe o nome completo: ")
+    data_nasc = input('Informe a data de nascimento separado por barras dd/mm/aaaa: ')
+    usuarios[cpf] = {"nome": nome, "data_nasc": data_nasc, "cpf": cpf}
+    return 'Usuário criado com sucesso.'
+
+def filtrar_usuario(cpf, usuarios):
+    return usuarios.get(cpf)
+
+def criar_conta():
+    cpf = input('Informe o CPF do usuário: ')
+    usuario = filtrar_usuario(cpf, usuarios)
+
+    if usuario:
+        global numero_conta
+        numero_conta += 1
+        contas[numero_conta] = ({'agencia': AGENCIA, 'conta': numero_conta, 'usuario': usuarios[cpf]})
+        return 'Conta criada com sucesso'
+
+def listar_contas():
+    global contas, numero_conta
+    clientes = ''
+    if contas:
+        for numero_conta, conta in contas.items():
+            clientes += f'Agência: {conta["agencia"]}, Conta: {numero_conta}, Usuário: {conta["usuario"]["nome"]}\n'
+        return clientes
+    else:
+        return 'Nenhuma conta encontrada.'
+
 def sair():
     return 'Obrigado pela preferência.\n'
 
 # Criando um dict onde armazena as opções e operações do menu
 switcher_menu = {
-    1: depositar,
-    2: sacar,
-    3: extrato_cliente,
-    4: saldo_cliente,
-    5: sair
+    1: criar_usuario,
+    2: criar_conta,
+    3: depositar,
+    4: sacar,
+    5: extrato_cliente,
+    6: saldo_cliente,
+    7: listar_contas,
+    8: sair
 }
 
 # Parte 'main' do programa, onde acontece tudo
@@ -77,5 +122,5 @@ while condicao>0:
     else:
         print('Opção inexistente, selecione outra opção.')
 
-    if escolha_menu == 5:
+    if escolha_menu == 8:
         condicao = 0
